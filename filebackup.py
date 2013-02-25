@@ -1,5 +1,5 @@
 #!/usr/bin/python -d
-#QProgressBar is not that hard. you instantiate it. you setMinimum and setMaximum as you like and the do setValue everytime you want to update
+
 import sys, os, time, subprocess
 from PyQt4 import QtCore, QtGui
 from filebackup_ui import Ui_Dialog
@@ -51,8 +51,6 @@ class MyForm(QtGui.QMainWindow):
     access_token = sess.obtain_access_token(request_token)
     client = dbclient.DropboxClient(sess)
     self.ui.lineEdit_loc.setText(str("Account Owner: " + client.account_info()[u'display_name']))
-
-#{u'referral_link': u'https://www.dropbox.com/referrals/NTMyNTU0NjA5', u'display_name': u'vikash bajaj', u'uid': 3255460, u'country': u'IN', u'quota_info': {u'shared': 9376, u'quota': 19595788288, u'normal': 1680501980}, u'email': u'contactvikashbajaj@gmail.com'}
 
 
   def backupOption(self):
