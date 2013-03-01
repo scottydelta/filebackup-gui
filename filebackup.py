@@ -17,7 +17,19 @@ class MyForm(QtGui.QMainWindow):
     QtCore.QObject.connect(self.ui.browserButton1, QtCore.SIGNAL("clicked()"), self.selectFile )
     QtCore.QObject.connect(self.ui.browserButton2, QtCore.SIGNAL("clicked()"), self.backupOption )
     QtCore.QObject.connect(self.ui.browserButton3, QtCore.SIGNAL("clicked()"), self.createBackup )
+###########added#########  
+    self.ui.radioButton_local.toggled.connect(self.radio1_clicked)
+    self.ui.radioButton_dropbox.toggled.connect(self.radio2_clicked)
 
+  def radio1_clicked(self, enabled):
+        if enabled:
+            self.ui.lineEdit_loc.setText('Select Files to Backup')
+            self.ui.browserButton2.setText(str("Browse"))
+  def radio2_clicked(self, enabled):
+        if enabled:
+            self.ui.lineEdit_loc.setText(str("Dropbox Account.."))
+	    self.ui.browserButton2.setText(str("Add"))
+############################
   filelist = []
   dirLoc = ""
   def selectFile(self):
@@ -42,15 +54,29 @@ class MyForm(QtGui.QMainWindow):
 # ACCESS_TYPE should be 'dropbox' or 'app_folder' as configured for your app
     ACCESS_TYPE = 'app_folder'
     sess = session.DropboxSession(APP_KEY, APP_SECRET, ACCESS_TYPE)
-
-    request_token = sess.obtain_request_token()
-# Make the user sign in and authorize this token
-    url = sess.build_authorize_url(request_token)
-    webbrowser.open(url)
-    QtGui.QMessageBox.about(self, 'Dropbox Connection', 'Press OK when authorised in Browser window')
-    access_token = sess.obtain_access_token(request_token)
-    client = dbclient.DropboxClient(sess)
-    self.ui.lineEdit_loc.setText(str("Account Owner: " + client.account_info()[u'display_name']))
+    token_key=""
+    token_secret=""
+    if open("access-token.txt").read()!="":
+    	token_file = open("access-token.txt")
+	token_key,token_secret = token_file.read().split('|')
+	token_file.close()
+        sess = session.DropboxSession(APP_KEY,APP_SECRET, ACCESS_TYPE )
+	sess.set_token(token_key,token_secret)
+	client = dbclient.DropboxClient(sess)
+    if token_key=="" and token_secret=="":
+    	request_token = sess.obtain_request_token()
+        url = sess.build_authorize_url(request_token)
+	webbrowser.open(url)
+        QtGui.QMessageBox.about(self, 'Dropbox Connection', 'Press OK when authorised in Browser window')
+        access_token = sess.obtain_access_token(request_token)
+	token_file = open("access-token.txt", "wb")
+	token_file.write(access_token.key+ "|" + access_token.secret)
+        token_file.close()
+        client = dbclient.DropboxClient(sess)
+        
+    
+    
+    self.ui.lineEdit_loc.setText(str("Account: " + client.account_info()[u'display_name']))
 
 
   def backupOption(self):
