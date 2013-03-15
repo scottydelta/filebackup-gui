@@ -32,12 +32,16 @@ class MyForm(QtGui.QMainWindow):
 ############################
   filelist = []
   dirLoc = ""
+  clinter = ""
   def selectFile(self):
     if self.ui.backupFiles.isChecked():
 	tempList = QtGui.QFileDialog.getOpenFileNames(self, "Select Files to Backup")
 	for elem in tempList:
 		self.filelist.append(str(elem))
-	self.ui.lineEdit_file.setText(str(self.filelist[-1]))
+	try:	
+		self.ui.lineEdit_file.setText(str(self.filelist[-1]))
+	except:
+		pass
 	self.ui.listWidget_files.addItems(tempList)
 	
     else: 
@@ -64,34 +68,46 @@ class MyForm(QtGui.QMainWindow):
 	sess.set_token(token_key,token_secret)
 	client = dbclient.DropboxClient(sess)
 	try:
-		accCheck = client.account_info()[u'display_name']
+		client = dbclient.DropboxClient(sess)
+		self.clienter = client
+		users_name = client.account_info()[u'display_name']
+		self.ui.lineEdit_loc.setText(str("Account: " + users_name))
 	except Exception as e:
-		print e
-		print e.message
-		if e.message.split(" ")[0]=="[401]":
-			print "hello"
+		if type(e)==rest.ErrorResponse:
 			token_key=""
 			token_secret=""
-			f = open('access-token.txt', 'r+') 
+			f = open("access-token.txt", "r+")
 			f.truncate()
-			f.close()
-		elif e.message=='Error connecting to "api.dropbox.com": [Errno 104] Connection reset by peer' or e.message=='Error connecting to "api.dropbox.com": [Errno -2] Name or service not known':
+			f.close	
+		elif type(e)==rest.RESTSocketError:
 			QtGui.QMessageBox.about(self, 'Problem Connecting', 'Please check your internet connection or try creating a local backup')
-    if token_key=="" and token_secret=="":
-    	request_token = sess.obtain_request_token()
-        url = sess.build_authorize_url(request_token)
-	webbrowser.open(url)
-        QtGui.QMessageBox.about(self, 'Dropbox Connection', 'Press OK when authorised in Browser window')
-        access_token = sess.obtain_access_token(request_token)
-	token_file = open("access-token.txt", "wb")
-	token_file.write(access_token.key+ "|" + access_token.secret)
-        token_file.close()
-        client = dbclient.DropboxClient(sess)
-        
-    
-    
-    #self.ui.lineEdit_loc.setText(str("Account: " + client.account_info()[u'display_name']))
+		else:
+			QtGui.QMessageBox.about(self, 'Problem Connecting', 'Some Error Occured, Please try creating a local backup')
+    else:
+	pass
 
+
+    if token_key=="" and token_secret=="":
+	try:
+		request_token = sess.obtain_request_token()
+        	url = sess.build_authorize_url(request_token)
+		webbrowser.open(url)
+        	QtGui.QMessageBox.about(self, 'Dropbox Connection', 'Press OK when authorised in Browser window')
+		access_token = sess.obtain_access_token(request_token)
+		token_file = open("access-token.txt", "wb")
+		token_file.write(access_token.key+ "|" + access_token.secret)
+        	token_file.close()
+       		client = dbclient.DropboxClient(sess)
+		self.clienter = client
+		users_name = client.account_info()[u'display_name']
+		self.ui.lineEdit_loc.setText(str("Account: " + users_name))
+	except Exception as e:
+		if type(e)==rest.RESTSocketError:
+			QtGui.QMessageBox.about(self, 'Problem Connecting', 'Please check your internet connection or try creating a local backup')
+		else:
+			QtGui.QMessageBox.about(self, 'Problem Connecting', 'Some Error Occured, Please try creating a local backup')
+    else:
+	pass
 
   def backupOption(self):
     if self.ui.radioButton_local.isChecked():
@@ -113,11 +129,9 @@ class MyForm(QtGui.QMainWindow):
 	cmd_list.append("location")
 	for elem in self.filelist:
 		cmd_list.append(elem)
-		print elem
 	if self.ui.radioButton_local.isChecked():
 		dirLocation = self.dirLoc + os.sep + "backup@" + time.strftime('%Y%m%d') + ".zip"
 		cmd_list[2] = str(dirLocation)
-		print cmd_list
 		if subprocess.call(cmd_list)==0:
 			QtGui.QMessageBox.about(self, 'File Backup', 'Backup Succesfully Created') 
 			self.ui.listWidget_files.clear()
@@ -126,13 +140,24 @@ class MyForm(QtGui.QMainWindow):
 		else:
 			QtGui.QMessageBox.about(self, 'File Backup', 'Please choose a different location for backup')
 	elif self.ui.radioButton_dropbox.isChecked():
-		dirLocation = "/tmp" + os.sep + "backup@" + time.strftime('%Y%m%d') + ".zip"
-		cmd_list.append(str(dirLocation))
+		fileName = "backup@" + time.strftime('%Y%m%d') + ".zip"
+		dirLocation = "/tmp" + os.sep + fileName
+		cmd_list[2] = str(dirLocation)
 		if subprocess.call(cmd_list)==0:
-			file_to_upload = open(dirLocation)
-			response = client.put_file(dirLocation, f)
-			msg = "uploaded: " + response
-			QtGui.QMessageBox.about(self, 'File Backup', msg)
+			try:
+				file_to_upload = open(dirLocation)
+				response = self.clienter.put_file("/"+fileName, file_to_upload)
+				QtGui.QMessageBox.about(self, 'Successful','File successfully backed-up at Dropbox')
+				os.remove(dirLocation)
+			except Exception as e:
+				print e
+				print e.message
+				if type(e)==rest.RESTSocketError:
+					QtGui.QMessageBox.about(self, 'Problem Connecting', 'Please check your internet connection or try creating a local backup')
+				else:
+					QtGui.QMessageBox.about(self, 'Problem Connecting', 'Some Error Occured, Please try creating a local backup')
+		else:
+			QtGui.QMessageBox.about(self, 'File Backup', 'Some Error Occured, Please try creating a local backup')
 	else:
 		QtGui.QMessageBox.about(self, 'File Backup', 'Backup Failed') 
 
