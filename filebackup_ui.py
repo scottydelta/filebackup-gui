@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'filebackup.ui'
 #
-# Created: Sun Feb 24 12:27:52 2013
+# Created: Tue Mar 12 15:56:38 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,16 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(408, 347)
-        self.backupFiles = QtGui.QRadioButton(Dialog)
-        self.backupFiles.setGeometry(QtCore.QRect(30, 10, 108, 26))
-        self.backupFiles.setObjectName(_fromUtf8("backupFiles"))
-        self.backupDir = QtGui.QRadioButton(Dialog)
-        self.backupDir.setGeometry(QtCore.QRect(150, 10, 151, 26))
-        self.backupDir.setObjectName(_fromUtf8("backupDir"))
-        self.lineEdit_file = QtGui.QLineEdit(Dialog)
-        self.lineEdit_file.setGeometry(QtCore.QRect(30, 40, 251, 31))
-        self.lineEdit_file.setObjectName(_fromUtf8("lineEdit_file"))
+        Dialog.resize(385, 347)
         self.listWidget_files = QtGui.QListWidget(Dialog)
         self.listWidget_files.setGeometry(QtCore.QRect(30, 80, 341, 141))
         self.listWidget_files.setObjectName(_fromUtf8("listWidget_files"))
@@ -61,15 +52,28 @@ class Ui_Dialog(object):
         self.browserButton3 = QtGui.QPushButton(Dialog)
         self.browserButton3.setGeometry(QtCore.QRect(264, 300, 111, 31))
         self.browserButton3.setObjectName(_fromUtf8("browserButton3"))
+        self.frame = QtGui.QFrame(Dialog)
+        self.frame.setEnabled(True)
+        self.frame.setGeometry(QtCore.QRect(30, 10, 281, 21))
+        self.frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setObjectName(_fromUtf8("frame"))
+        self.backupFiles = QtGui.QRadioButton(self.frame)
+        self.backupFiles.setGeometry(QtCore.QRect(0, 0, 108, 26))
+        self.backupFiles.setChecked(True)
+        self.backupFiles.setObjectName(_fromUtf8("backupFiles"))
+        self.backupDir = QtGui.QRadioButton(self.frame)
+        self.backupDir.setGeometry(QtCore.QRect(120, 0, 151, 26))
+        self.backupDir.setObjectName(_fromUtf8("backupDir"))
+        self.lineEdit_file = QtGui.QLineEdit(Dialog)
+        self.lineEdit_file.setGeometry(QtCore.QRect(30, 40, 251, 31))
+        self.lineEdit_file.setObjectName(_fromUtf8("lineEdit_file"))
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "FileBackup", None))
-        self.backupFiles.setText(_translate("Dialog", "Backup Files", None))
-        self.backupDir.setText(_translate("Dialog", "Backup Directory", None))
-        self.lineEdit_file.setText(_translate("Dialog", "Select Files or Folders..", None))
         self.browserButton1.setText(_translate("Dialog", "Browse", None))
         self.radioButton_local.setText(_translate("Dialog", "Local Backup", None))
         self.label.setText(_translate("Dialog", "Backup Location:", None))
@@ -77,4 +81,7 @@ class Ui_Dialog(object):
         self.lineEdit_loc.setText(_translate("Dialog", "Select location for Backup..", None))
         self.browserButton2.setText(_translate("Dialog", "Browse", None))
         self.browserButton3.setText(_translate("Dialog", "Create Backup", None))
+        self.backupFiles.setText(_translate("Dialog", "Backup Files", None))
+        self.backupDir.setText(_translate("Dialog", "Backup Directory", None))
+        self.lineEdit_file.setText(_translate("Dialog", "Select Files or Folders..", None))
 
